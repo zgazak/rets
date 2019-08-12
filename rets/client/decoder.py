@@ -5,12 +5,12 @@ from datetime import datetime, time, timezone
 from decimal import Decimal
 from functools import partial
 from typing import Any, Sequence
-
-import udatetime
-
+import arrow
 from rets.errors import RetsParseError
 
 logger = logging.getLogger('rets')
+
+DATE_TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%f'
 
 
 class RecordDecoder:
@@ -75,7 +75,8 @@ def _decode_datetime(value: str, include_tz: bool) -> datetime:
     elif re.match(r'^\d{4}-\d{2}-\d{2}$', value):
         value = '%sT00:00:00' % value[0:10]
 
-    decoded = udatetime.from_string(value)
+    decoded = arrow.get(value)
+
     if not include_tz:
         return decoded.astimezone(timezone.utc).replace(tzinfo=None)
     return decoded
